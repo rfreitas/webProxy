@@ -92,6 +92,11 @@
         console.log(req.headers);
         options.headers = _.pick(req.headers, 'user-agent', 'accept-language');
 
+        var referer = options.headers.referer;
+        if (referer){
+            options.headers.referer = referer.slice( referer.search(/\/proxy\//) + "/proxy/".length);
+        }
+
         proxyRequest(options, _.partial(callback, parsedUrl.hostname, clientRes) ).end();
     });
 

@@ -25,6 +25,7 @@ https://github.com/nzakas/parser-lib
 http:
 http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 http://www.mattlunn.me.uk/blog/2012/05/handling-a-http-redirect-in-node-js/
+http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html accept headers
 
 cookies:
 https://github.com/jed/cookies
