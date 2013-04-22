@@ -123,6 +123,11 @@
         return protocol.request(options, callback );
     };
 
+    var isRequestCompressed = function(response){
+        var contentEncoding = response.headers["content-encoding"];
+        return !!( contentEncoding && contentEncoding.length > 0 );
+    };
+
     var callback = function(hostname, clientRes,response) {
         var str = '';
         console.log("\nServer response headers:");
@@ -144,8 +149,11 @@
         var contentType = response.headers["content-type"];
         var isText = contentType.search(/text/) === 0;
         var isHtml = isText && contentType.search(/html/) > 0;
+        var isCompressed =  isRequestCompressed(response);
 
-        if (!isText){ response.setEncoding('binary'); }
+        if (!isText || isCompressed){
+            response.setEncoding('binary');
+        }
 
         //another chunk of data has been recieved, so append it to `str`
         response.on('data', function (chunk) {
@@ -168,7 +176,6 @@
         response.on('end', function () {
             console.log("response:");
             if (isHtml){
-
                 var $ = cheerio.load(str);
                 $('[href]').each(function(i ,node){
                     replaceIfRelativeWith( "", "href", node, $);
