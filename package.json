@@ -1,0 +1,32 @@
+{
+    "name": "CUE",
+    "version": "0.0.1",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "description": "ERROR: No README.md file found!",
+    "main": "server.js",
+    "directories": {
+        "test": "test"
+    },
+    "dependencies": {
+        "express": "~3.0.3",
+        "redis": "~0.8.2",
+        "util": "~0.4.9",
+        "underscore": "1.x",
+        "path": "x",
+        "crypto": "x",
+        "share": "https://github.com/josephg/ShareJS/tarball/master",
+        "cuid": "https://github.com/dilvie/cuid/tarball/master",
+        "shareko": "https://github.com/rfreitas/ShareKO.js/tarball/master",
+        "syncedclock": "https://github.com/rfreitas/syncedClock/tarball/master"
+    },
+    "engines": {
+        "node": "0.8.x",
+        "npm": "1.2.x"
+    },
+    "devDependencies": {},
+    "repository": "",
+    "author": "Ricardo Freitas",
+    "license": "BSD"
+}

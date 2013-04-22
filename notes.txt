@@ -1,0 +1,60 @@
+Proxy server
+
+https://github.com/joyent/node/wiki/modules
+
+https://github.com/nodejitsu/node-http-proxy
+https://github.com/pkrumins/nodejs-proxy
+
+iframes:
+http://www.html5rocks.com/en/tutorials/security/sandboxed-iframes/
+
+http requests:
+http://stackoverflow.com/questions/9577611/http-get-request-in-node-js-express
+https://github.com/tomas/needle
+
+Parsers:
+html:
+https://github.com/MatthewMueller/cheerio
+
+css:
+http://stackoverflow.com/questions/10963997/css-parser-for-javascript
+https://npmjs.org/package/css/
+https://github.com/NV/CSSOM & http://dev.w3.org/csswg/cssom/
+https://github.com/nzakas/parser-lib
+
+http:
+http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
+http://www.mattlunn.me.uk/blog/2012/05/handling-a-http-redirect-in-node-js/
+
+cookies:
+https://github.com/jed/cookies
+http://stackoverflow.com/questions/3737062/managing-sessions-in-nodejs
+
+https:
+http://docs.nodejitsu.com/articles/HTTP/servers/how-to-create-a-HTTPS-server
+http://stackoverflow.com/a/14272874/689223 http://stackoverflow.com/a/8357673/689223
+
+
+possible ways to redirect to a new page:
+html:
+ a href
+ css: content("URL") inside of an anchor
+JS:
+ window.location & document.location    https://developer.mozilla.org/en-US/docs/DOM/window.location
+ http redirects
+
+possible ways to refer to content:
+css:
+    url()
+html:
+    *[style="url()"]
+    *[src] (eg:script)
+    *[href] (eg:link)
+JS:
+    editing DOM https://developer.mozilla.org/en-US/docs/DOM/MutationObserver#MutationObserverInit
+    editing CS (no clue how to observe this)
+    AJAX http://en.wikipedia.org/wiki/XMLHttpRequest
+
+Fallbacks:
+    1. catch unresolved relative path request and with the help of referer, proxy them correctly.
+    2. IFRAME: when the iframe goes to a link outside of the proxy, redirect it to the proxy
