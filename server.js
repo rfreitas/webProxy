@@ -198,12 +198,7 @@
         var proxyHostname = parsedProxyUrl.hostname;
 
         if (proxyHostname){
-            http.request({
-                port: 80,
-                method: 'GET',
-                hostname: proxyHostname,
-                path: reqUrl
-            }, _.partial(callback, proxyHostname, res) ).end();
+            res.redirect("/proxy/"+parsedProxyUrl.protocol+"//"+proxyHostname + reqUrl);
         }
     });
 
