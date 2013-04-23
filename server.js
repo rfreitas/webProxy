@@ -19,6 +19,7 @@
     var _ = require("underscore");
     var request = require('request');
     var cheerio = require('cheerio');
+    var cleanCSS = require('clean-css');
 
 
 
@@ -152,9 +153,11 @@
         clientRes.writeHead( response.statusCode, _.omit(response.headers, "set-cookie"));
 
         var contentType = response.headers["content-type"];
-        var isText = contentType.search(/text/) === 0;
-        var isHtml = isText && contentType.search(/html/) > 0;
         var isCompressed =  isRequestCompressed(response);
+        var isText = contentType.search(/text/) === 0 && !isCompressed;
+        var isHtml = isText && contentType.search(/html/) > 0;
+        var isCSS = isText && !isHtml && contentType.search(/css/) > 0;
+
 
         if (!isText || isCompressed){
             response.setEncoding('binary');
@@ -170,11 +173,15 @@
         var replaceIfRelativeWith = function( prefix, attr, node, $){
             var existing = $(node).attr(attr);
             if (existing[0] === "/" && existing[1] !== "/"){//is relative path
-                $(node).attr(attr, "/proxy/"+ "http://"+hostname + existing);
+                $(node).attr(attr, proxyHostname() + existing);
             }
             else if(existing){//absolute path
                 $(node).attr(attr, "/proxy/" + existing);
             }
+        };
+
+        var proxyHostname = function(){
+            return "/proxy/"+ "http://"+hostname;
         };
 
         //the whole response has been recieved, so we just print it out here
@@ -193,17 +200,45 @@
                 //console.log(fullHtml || str);
                 clientRes.end( fullHtml|| str );
             }
+            else if(isCSS){
+                var minCss = cleanCSS.process(str);
+                var parsedCss = minCss.replace(/url\('[^']+(?='\))|url\("[^"]+(?="\))|url\([^"')]+(?=\))/gi, function(match){
+                    var prefix = "";
+                    var newUrl;
+                    console.log("CSS match:"+match);
+                    var url = match.replace(/url\(|url\('|url\("/, function(prefixMatch){
+                        prefix = prefixMatch;
+                        return "";
+                    });
+                    if (isDomainRelative(url)){
+                        newUrl = proxyHostname() + url;
+                    }
+                    else{
+                        newUrl = url;
+                    }
+                    console.log("REsult:"+prefix+newUrl);
+                    return prefix+newUrl;
+                });
+                clientRes.end( parsedCss );
+            }
+            else if(isText){
+                clientRes.end( str );
+            }
             else{
                 clientRes.end( str , "binary" );
             }
         });
     };
 
+    var isDomainRelative = function(url){
+        return url[0] === "/" && url[1] !== "/";
+    };
+
     //fallback for not found relative requests, assume it might be a proxy request
-    app.get("*",function(req,res){
+    app.get("*",function(req,res, next){
         var reqUrl = req.url;
         console.log("dead request for:"+reqUrl);
-        var referer = req.headers.referer;
+        var referer = req.headers.referer || "";
 
         var proxyUrl = referer.slice( referer.search(/proxy\//)+"proxy/".length);
         var parsedProxyUrl = url.parse(proxyUrl);
@@ -211,6 +246,9 @@
 
         if (proxyHostname){
             res.redirect("/proxy/"+parsedProxyUrl.protocol+"//"+proxyHostname + reqUrl);
+        }
+        else{
+            next();
         }
     });
 

@@ -47,6 +47,11 @@ JS:
 possible ways to refer to content:
 css:
     url()
+    relative paths from the css location
+    relative path from the domain of the css
+      this is problematic if the domain is different than the page one, since referer won't help and neither will a cookie solution
+        only way is to parse
+    full href
 html:
     *[style="url()"]
     *[src] (eg:script)
@@ -59,3 +64,18 @@ JS:
 Fallbacks:
     1. catch unresolved relative path request and with the help of referer, proxy them correctly.
     2. IFRAME: when the iframe goes to a link outside of the proxy, redirect it to the proxy
+
+
+parsing css:
+    url can take urls without quotes, but they must not have parenthesis
+    if urls have quotes they must not have the same type of quote inside of them, eg: url("adsa/?="dasd"&ds") is invalid, but url('adsa/?="dasd"&ds') is perfectly valid
+    semicolons are perfectly legal in urls http://stackoverflow.com/questions/1178024/can-a-url-contain-a-semi-colon
+
+    minify css first to make parsing faster and to reduce the number of assumptions (eg. circumvent white space and comments)
+    https://github.com/GoalSmashers/clean-css
+
+    why not use a css parser?
+    overkill, we only want to modify the URLS inside of url(URLS) and most css parsers don't parse the value of properties, bringing pretty much nothing new compared to a regex
+
+Regex:
+http://blog.stevenlevithan.com/archives/javascript-regex-lookbehind
