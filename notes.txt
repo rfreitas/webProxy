@@ -25,7 +25,9 @@ https://github.com/nzakas/parser-lib
 http:
 http://en.wikipedia.org/wiki/List_of_HTTP_header_fields
 http://www.mattlunn.me.uk/blog/2012/05/handling-a-http-redirect-in-node-js/
-http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html accept headers
+accept headers:
+ http://stackoverflow.com/a/7310784/689223
+ http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
 
 cookies:
 https://github.com/jed/cookies
@@ -79,3 +81,9 @@ parsing css:
 
 Regex:
 http://blog.stevenlevithan.com/archives/javascript-regex-lookbehind
+
+
+
+bugs:
+1. https to google failt with "..EVP_PKEY_get1_RSA:expecting an rsa key.."
+  node.js bug: https://github.com/joyent/node/issues/4771
