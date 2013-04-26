@@ -148,7 +148,7 @@ parseUri.options = {
             var referer = options.headers.referer;
             console.log("referer:"+referer);
             var parsedReferer = parseUri(referer);
-            if (referer){
+            if (referer && false){
                 console.log("Trying to redirect request");
 
                 var directory = parsedReferer.directory || "/";

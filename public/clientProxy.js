@@ -5,10 +5,67 @@
  * Time: 18:15
  * To change this template use File | Settings | File Templates.
  */
+
+
+
 (function(window, jQuery, undefined, document){
     "use strict";
     var $ = jQuery.noConflict();
     window.jQuery = undefined;
+
+    var m = new MutationObserver(function(mutationsArray){
+        m.disconnect();
+
+        mutationsArray.forEach(function(mutation){
+            if (mutation.type === "childList"){
+                $(mutation.addedNodes).each(function(i,node){
+                    if ( $(node).is("a[href]") ){
+                        $( function(){
+                        replaceIfRelativeWith( "", "href", node, $);
+                            $(node).find("a[href]").each( function(i, node){
+                                replaceIfRelativeWith( "", "href", node, $);
+                            });
+                        });
+                    }
+                    else if( $(node).is("link[href]") ){
+                        replaceIfRelativeWith( "", "href", node, $, true);
+                    }
+                    else if ($(node).is("iframe[src]")){
+                        $( function(){//bug changing the before the onready event makes it so that the change does not register
+                            replaceIfRelativeWith( "", "src", node, $);
+                        });
+                    }
+                });
+            }
+            else if(mutation.type === "attributes"){
+                //console.log("attributes changed!!!!");
+                return;
+                var node = mutation.target;
+
+                //console.log(node);
+                if ($(node).is("*[src]")){
+                    console.log("src change");
+                    replaceIfRelativeWith( "", "src", node, $, true);
+                }
+                else if($(node).is("*[href]")){
+                    console.log("href change");
+                }
+            }
+        });
+
+        m.observe(document, observerOptions);
+    });
+
+    var observerOptions = {
+        childList:true,
+        attributes:true,
+        subtree:true,
+        characterData: false,
+        attributeOldValue: false,
+        attributeFilter: ["href","src"]
+    };
+    m.observe(document, observerOptions);
+
 
     //ref: http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js
     //alt: http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
@@ -45,45 +102,58 @@
     };
 
 
+    var replaceIfRelativeWith = function( prefix, attr, node, $, dontProxy){
+        var doProxy = !dontProxy;
+        var existing = $(node).attr(attr);
+        var proxyPrefix = "/proxy/";
+
+        if (!existing || existing.search(proxyPrefix) === 0) return;
+        console.log(existing);
+
+
+        var newUrl = "";
+        var existingParsed = parseUri(existing);
+        if (existing[0] === "/" && existing[1] !== "/"){//is relative path to domain
+            //$(node).attr(attr, proxyHostname() + existing);
+            newUrl = proxyHost + existing;
+        }
+        else if (existing[0] === "#"){
+
+        }
+        else if(existingParsed.protocol || existing.search("//") === 0){//absolute path
+            if (!dontProxy && existingParsed.protocol !== "javascript") newUrl = existing;
+        }
+        else{//relative to current path
+            var directory = proxyUrlParsed.directory || "/";
+            directory = directory.replace(/\/[^\/]+$/g,"/");
+            newUrl =  proxyHost + directory + existing;
+        }
+
+        if (newUrl && doProxy){
+            newUrl = proxyPrefix + newUrl;
+        }
+
+        if (newUrl && newUrl !== existing){
+            $(node).attr(attr, newUrl);
+            //console.log(existing);
+            console.log($(node).attr(attr));
+        }
+    };
+
+    var proxyUrlParsed = parseUri(location.pathname.replace(/\/proxy\//,""));
+    var proxyHost = proxyUrlParsed.protocol +"://"+ proxyUrlParsed.authority;
 
     $(function(){
-            var replaceIfRelativeWith = function( prefix, attr, node, $, dontReplaceFullUrls){
-                var existing = $(node).attr(attr);
-                if (!existing) return;
-
-                var newUrl = "";
-                var existingParsed = parseUri(existing);
-                if (existing[0] === "/" && existing[1] !== "/"){//is relative path to domain
-                    //$(node).attr(attr, proxyHostname() + existing);
-                }
-                else if (existing[0] === "#"){
-
-                }
-                else if(existingParsed.protocol){//absolute path
-                    if (!dontReplaceFullUrls && existingParsed.protocol !== "javascript") newUrl = "/proxy/" + existing;
-                }
-                else{//relative to path
-                    var directory = proxyUrlParsed.directory || "/";
-                    if (directory[directory.length-1] !== "/") directory = directory + "/";
-                    newUrl = "/proxy/" + proxyUrlParsed.protocol +"://"+ proxyUrlParsed.authority+ directory + existing;
-                }
-                if (newUrl){
-                    $(node).attr(attr, newUrl);
-                    console.log(existing);
-                    console.log(newUrl);
-                }
-            };
-
-            var proxyUrlParsed = parseUri(location.pathname.replace(/\/proxy\//,""));
+            return;
 
             $('a[href]').each(function(i ,node){
                 replaceIfRelativeWith( "", "href", node, $);
             });
             $('link[href]').each(function(i ,node){
-                //replaceIfRelativeWith( "", "href", node, $, true);
+                replaceIfRelativeWith( "", "href", node, $, true);
             });
-            $('[src]').each(function(i ,node){
-                //replaceIfRelativeWith( "", "src", node, $);
+            $('iframe[src]').each(function(i ,node){
+                replaceIfRelativeWith( "", "src", node, $);
             });
         console.log("sup");
     });
