@@ -13,21 +13,49 @@
     var $ = jQuery.noConflict();
     window.jQuery = undefined;
 
+    var iframe = window.frameElement;
+
+    if (iframe){
+        iframe.contentDocument = document;//normalization: some browsers don't set the contentDocument, only the contentWindow
+
+        var parent = window.parent;
+        $(parent.document).ready(function(){
+            var parent$ = parent.jQuery;
+            parent$(iframe).trigger("iframeactive");
+
+            $(function(){
+                parent$(iframe).trigger("iframeready");
+            });
+            $(window).load(function(){
+                parent$(iframe).trigger("iframeloaded");
+            });
+
+            $(window).unload(function(e){//not possible to prevent default
+                parent$(iframe).trigger("iframeunloaded");
+            });
+
+            $(window).on("beforeunload",function(){
+                parent$(iframe).trigger("iframebeforeunload");
+            });
+
+            console.log(iframe);
+        });
+    }
+
 
     var ajaxProto = XMLHttpRequest.prototype;
 
     var oldOpen = ajaxProto.open;
     //ref: https://developer.mozilla.org/en-US/docs/DOM/XMLHttpRequest#open
-    ajaxProto.open = function( method, url,  async, user, password){
-        url = prefixUrl("/proxy/", url);
-        return oldOpen.call(this, method, url, async, user, password);
+    ajaxProto.open = function( m, url ){
+        var args = $.makeArray(arguments);
+        args[1] = prefixUrl("/proxy/", url);
+        return oldOpen.apply(this,args);
     };
 
     var oldHrefOpen = window.open;
 
     window.open = function(url){
-        console.log("url:"+url);
-
         var args = $.makeArray(arguments);
         args[0] = prefixUrl("/proxy/", url);
         args[1] ="_self";
@@ -122,7 +150,7 @@
 
 
     var prefixUrl = function(proxyPrefix, existing, dontProxy){
-        console.log(existing);
+        //console.log(existing);
         if (existing.search(proxyPrefix) === 0 || existing.search(location.origin) === 0){
             return existing;
         }
@@ -151,7 +179,7 @@
             newUrl = proxyPrefix + newUrl;
         }
 
-        if (newUrl) console.log(newUrl);
+        //if (newUrl) console.log(newUrl);
         return newUrl;
     };
 

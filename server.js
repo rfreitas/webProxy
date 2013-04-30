@@ -93,15 +93,15 @@ parseUri.options = {
 
     app.use(app.router);
 
-    var scriptTemplate = Handlebars.registerPartial('externalScript','{{#each scripts}}<script src="{{this}}" type="text/javascript"></script>{{/each}}');
+    var scriptTemplate = Handlebars.registerPartial('externalScript','{{#each scripts}}\n<script src="{{this}}" type="text/javascript"></script>\n{{/each}}');
     var cssTemplate = Handlebars.registerPartial('externalSheet','<link href="{{css_src}}" rel="stylesheet" type="text/css"/>');
-    var experimentTemplate = Handlebars.compile('<head>{{> externalScript}}{{> externalSheet}}</head> <body><iframe src="/proxy/http://www.amazon.com"></iframe></body>');
+    var experimentTemplate = Handlebars.compile('<head>{{> externalScript}}{{> externalSheet}}</head> <body><iframe src="/proxy/http://www-edc.eng.cam.ac.uk/~rmcd3/touchProto/"></iframe></body>');
 
     var proxyPageTemplate = Handlebars.compile('{{> externalScript}}');
     var proxyPageHeader = proxyPageTemplate({
         scripts:["http://code.jquery.com/jquery-1.9.1.min.js",
             "http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js",
-            "/clientProxy.js"]
+            "http://localhost:5000/clientProxy.js"]
     });
 
     app.get("/experiment/:id", function(req, res){
@@ -129,18 +129,21 @@ parseUri.options = {
 
         options = _.extend(options, parsedUrl);
 
-        console.log("client request headers:");
-        console.log(req.headers);
-        options.headers = _.pick(req.headers, "accept","user-agent","accept-language","accept-charset","referer");
+        //console.log("client request headers:");
+        //console.log(req.headers);
+        options.headers = _.omit(req.headers, "cookie","origin","accept-encoding","host");
 
         var referer = options.headers.referer;
         if (referer){
             options.headers.referer = referer.slice( referer.search(/\/proxy\//) + "/proxy/".length);
         }
+        options.headers.host = parsedUrl.host;
+        if (req.headers.origin) options.headers.origin = parsedUrl.host;
         //options.headers["accept-encoding"] = "gzip";
-        options.headers["accept-charset"] = "utf-8";
+        //options.headers["accept-charset"] = "utf-8";
 
-        var request = proxyRequest(options, _.partial(callback, parsedUrl.hostname, clientRes) );
+        var request = proxyRequest(options, _.partial(callback, parsedUrl, clientRes) );
+
 
         request.on('error', function(e) {
             console.log("Got error: " + e.message);
@@ -160,6 +163,7 @@ parseUri.options = {
                 clientRes.send(404);
             }
         });
+
 
         //ref: http://stackoverflow.com/questions/6158933/http-post-request-in-node-js
         //ref: http://stackoverflow.com/questions/9920208/expressjs-raw-body
@@ -202,11 +206,7 @@ parseUri.options = {
             }
         };
 
-
-        return protocol.request(options, callback ).on('error',function(e){
-            console.log("Error: " + e.message);
-            console.log( e.stack );
-        });
+        return protocol.request(options, callback );
     };
 
     var isRequestCompressed = function(response){
@@ -214,10 +214,13 @@ parseUri.options = {
         return contentEncoding.length > 0;
     };
 
-    var callback = function(hostname, clientRes,response) {
+    var callback = function(parsedUrl, clientRes,response) {
+        var hostname = parsedUrl.hostname;
         var str = '';
         console.log("\nServer response headers:");
         console.log(response.headers);
+        console.log("status code:"+response.statusCode);
+        console.log("requested url:"+parsedUrl.href);
 
         if (response.statusCode > 300 && response.statusCode < 400 && response.headers.location) {
             // The location for some (most) redirects will only contain the path,  not the hostname;
@@ -230,11 +233,11 @@ parseUri.options = {
                 response.headers.location = "/proxy/"+hostname+parsedLocation.path;
             }
         }
-        clientRes.writeHead( response.statusCode, _.omit(response.headers, "set-cookie","p3p"));
+        clientRes.writeHead( response.statusCode, _.omit(response.headers, "set-cookie","p3p","content-length"));
 
         var contentType = response.headers["content-type"];
         var isCompressed =  isRequestCompressed(response);
-        var isText = !isCompressed && contentType.search(/text/) === 0;
+        var isText = !isCompressed && contentType && contentType.search(/text/) === 0;
         var isHtml = isText && contentType.search(/html/) > 0;
         var isCSS = isText && !isHtml && contentType.search(/css/) > 0;
 
@@ -250,15 +253,51 @@ parseUri.options = {
         console.log("The callback");
         console.log("hostname: "+hostname);
 
-        var replaceIfRelativeWith = function( prefix, attr, node, $){
-            var existing = $(node).attr(attr);
-            if (existing[0] === "/" && existing[1] !== "/"){//is relative path
-                $(node).attr(attr, proxyHostname() + existing);
+        var prefixUrl = function(proxyPrefix, existing, dontProxy){
+            //console.log(existing);
+
+            var doProxy = !dontProxy;
+            var newUrl = "";
+            var existingParsed = parseUri(existing);
+
+            if (existing[0] === "/" && existing[1] !== "/"){//is relative path to domain
+                //$(node).attr(attr, proxyHostname() + existing);
+                newUrl = proxyHost + existing;
             }
-            else if(existing){//absolute path
-                $(node).attr(attr, "/proxy/" + existing);
+            else if (existing[0] === "#"){
+                return existing;
+            }
+            else if(existingParsed.protocol || existing.search("//") === 0){//absolute path
+                if (!dontProxy && existingParsed.protocol !== "javascript") newUrl = existing;
+            }
+            else{//relative to current path
+                var directory = proxyUrlParsed.directory || "/";
+                directory = directory.replace(/\/[^\/]+$/g,"/");
+                newUrl =  proxyHost + directory + existing;
+            }
+
+            if (newUrl && doProxy){
+                newUrl = proxyPrefix + newUrl;
+            }
+
+            //if (newUrl) console.log(newUrl);
+            return newUrl;
+        };
+
+
+        var replaceIfRelativeWith = function( prefix, attr, node, $, dontProxy){
+            var existing = $(node).attr(attr);
+            var proxyPrefix = "/proxy/";
+
+            var newUrl = prefixUrl(proxyPrefix, existing, dontProxy);
+
+            if (newUrl && newUrl !== existing){
+                $(node).attr(attr, newUrl);
             }
         };
+
+        var proxyUrlParsed = parseUri(parsedUrl.href);
+        var proxyHost = proxyUrlParsed.protocol +"://"+ proxyUrlParsed.authority;
 
         var proxyHostname = function(){
             return "/proxy/"+ "http://"+hostname;
@@ -268,18 +307,41 @@ parseUri.options = {
         response.on('end', function () {
             console.log("response:");
             if (isHtml ){
-                var $ = cheerio.load(str);
-                $('[href]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "href", node, $);
-                });
-                $('[src]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "src", node, $);
-                });
-                var fullHtml = $.html();
-                fullHtml = str.replace(/<html[^>]*>/,function(match){
+                str = str.replace(/<head[^>]*>/,function(match){
                     return match + proxyPageHeader;
                 });
+
+                var $ = cheerio.load(str);
+
+                $('a[href]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "href", node, $);
+                    $(node).attr("target", "_self");//ref:http://www.w3schools.com/jsref/prop_anchor_target.asp
+                });
+                $('area[href]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "href", node, $);
+                    $(node).attr("target", "_self");//ref:http://www.w3schools.com/jsref/prop_anchor_target.asp
+                });
+                $('form[action]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "action", node, $);
+                });
+                $('link[href]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "href", node, $, true);
+                });
+                $('script[src]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "src", node, $, true);
+                });
+                $('object[data]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "data", node, $, true);
+                });
+                $('iframe[src]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "src", node, $);
+                });
+
+                var fullHtml = $.html();
+
                 console.log( fullHtml ? "fullHtml:": "raw:");
+                console.log(fullHtml);
+
 
                 //console.log(fullHtml || str);
                 clientRes.end( fullHtml|| str );

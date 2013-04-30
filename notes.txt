@@ -16,6 +16,13 @@ Parsers:
 html:
 https://github.com/MatthewMueller/cheerio
 
+html events:
+http://molily.de/weblog/domcontentloaded
+https://developer.mozilla.org/en-US/docs/DOM/Mozilla_event_reference/DOMContentLoaded
+http://thanpol.as/javascript/you-dont-need-dom-ready/
+ iframes:
+ http://stackoverflow.com/questions/205087/jquery-ready-in-a-dynamically-inserted-iframe
+
 css:
 http://stackoverflow.com/questions/10963997/css-parser-for-javascript
 https://npmjs.org/package/css/
@@ -87,3 +94,6 @@ http://blog.stevenlevithan.com/archives/javascript-regex-lookbehind
 bugs:
 1. https to google failt with "..EVP_PKEY_get1_RSA:expecting an rsa key.."
   node.js bug: https://github.com/joyent/node/issues/4771
+2. when parsing with cheerio End of html document is missing
+  Fix: remove content length from response header
+3. when parsing with cheerio some websites are broken, eg: imdb movies

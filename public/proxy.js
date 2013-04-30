@@ -1,6 +1,21 @@
-(function(window,jQuery){
+(function(window,$,document){
     "use strict";
-    var $ = jQuery.noConflict();
+
+    $(function(){
+        $("iframe").on("iframeready iframeactive iframeloaded iframeunloaded iframebeforeunload", function(e){
+            console.log(e.type);
+            console.log(e.target);
+            console.log("WHHHAT");
+            console.log($(this.contentDocument).find("*").length);
+        });
+    });
+
+    $(function(){
+        $("iframe").on("beforeunload", function(e){
+            return "are you sure";
+        });
+    });
+
 
     $(function(){
         var iframe = $('iframe');
@@ -20,5 +35,5 @@
         }.bind(iframe[0]));
         console.log("sup");
     });
-})(window,jQuery);
+})(window,jQuery, document);
 
