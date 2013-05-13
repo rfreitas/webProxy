@@ -13,32 +13,70 @@
     var $ = jQuery.noConflict();
     window.jQuery = undefined;
 
+
+    //why not put _super in the function itself rather than in the object?
+    /*
+    because of this usecase:
+     var newOverride = function newPush(eventType){
+     var out = newPush._super.apply(this, arguments);
+     $(window).trigger(eventType);
+     return out;
+     };
+
+     overrideMethod(history, "pushState", newOverride.bind("statepushed"));
+
+     overrideMethod(history, "replaceState", newOverride.bind("statereplaced") );
+
+     */
+    var overrideMethod = function(obj, methodKey, newMethod){
+        var previous = obj[methodKey];
+        var wrapper = function(){
+            obj._super = previous;//TODO: preserve _super previous value
+            var returnVal = newMethod.apply(this,arguments);
+            delete obj._super;
+            return returnVal;
+        };
+        obj[methodKey] = wrapper;
+        return wrapper;
+    };
+
     var iframe = window.frameElement;
+    var parent = window.parent;
 
-    if (iframe){
+
+    if (iframe && parent && !window.isProxied12321){
         iframe.contentDocument = document;//normalization: some browsers don't set the contentDocument, only the contentWindow
+        window.isProxied12321 = true;
 
-        var parent = window.parent;
         $(parent.document).ready(function(){
-            var parent$ = parent.jQuery;
-            parent$(iframe).trigger("iframeactive");
+            var p$ = parent.jQuery;
+            p$(iframe).trigger("iframeactive");
 
-            $(function(){
-                parent$(iframe).trigger("iframeready");
+            p$(function(){
+                p$(iframe).trigger("iframeready");
             });
-            $(window).load(function(){
-                parent$(iframe).trigger("iframeloaded");
-            });
-
-            $(window).unload(function(e){//not possible to prevent default
-                parent$(iframe).trigger("iframeunloaded");
+            p$(window).load(function(){
+                p$(iframe).trigger("iframeloaded");
             });
 
-            $(window).on("beforeunload",function(){
-                parent$(iframe).trigger("iframebeforeunload");
+            p$(window).unload(function(e){//not possible to prevent default
+                p$(iframe).trigger("iframeunloaded");
             });
 
-            console.log(iframe);
+            p$(window).on("beforeunload",function(){
+                p$(iframe).trigger("iframebeforeunload");
+            });
+
+            var newOverride = function (eventType){
+                var args = $.makeArray(arguments);
+                var out = this._super.apply(this, args.slice(1));
+                p$(window).trigger(eventType);
+                return out;
+            };
+
+            overrideMethod(history, "pushState", newOverride.bind(history,"statepushed"));
+
+            overrideMethod(history, "replaceState", newOverride.bind(history,"statereplaced") );
         });
     }
 

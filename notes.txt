@@ -90,6 +90,16 @@ Regex:
 http://blog.stevenlevithan.com/archives/javascript-regex-lookbehind
 
 
+graphs:
+http://stackoverflow.com/questions/7034/graph-visualization-code-in-javascript
+
+
+RoadMap:
+1.Deal with scalability issues (huge datasets)
+2.security
+    make sure document operations are properly authorized first (eg. clients don't have permission to read/write other runs)
+
+
 
 bugs:
 1. https to google failt with "..EVP_PKEY_get1_RSA:expecting an rsa key.."

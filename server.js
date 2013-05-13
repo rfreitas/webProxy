@@ -48,11 +48,12 @@ parseUri.options = {
         crypto = require("crypto");
     var express = require('express');
     var util = require('util');
-    var sharejs = require('share').server;
-    var redis = require("redis");
+    var share = require("share");
+    var shareServer = require('share').server;
+    var shareClient = shareServer.client;
+    //var redis = require("redis");
     var url = require("url");
     var _ = require("underscore");
-    var request = require('request');
     var cheerio = require('cheerio');
     var cleanCSS = require('clean-css');
     var cookie = require("./cookie.js");
@@ -72,10 +73,23 @@ parseUri.options = {
 
     var app = express();
 
+    var sharejsOptions = {
+        db: {
+            type: 'none' //{type: 'redis'}}; // See docs for options. {type: 'redis'} to enable persistance.
+        },
+        auth: function(agent, action){
+            //ref: https://github.com/josephg/ShareJS/wiki/User-access-control
+            action.accept();
+        }
+    };
+
 
     console.log(__dirname);
 
+    shareServer.attach(app, sharejsOptions);
+
     app.use(express.static(__dirname+"/public") );
+    app.use(express.static(__dirname+"/node_modules") );
     //app.use(express.bodyParser());
 
     //ref: http://stackoverflow.com/a/13565786/689223
@@ -93,9 +107,15 @@ parseUri.options = {
 
     app.use(app.router);
 
+
+
+    /*
+    * EXPERIMENTS
+     */
+
     var scriptTemplate = Handlebars.registerPartial('externalScript','{{#each scripts}}\n<script src="{{this}}" type="text/javascript"></script>\n{{/each}}');
-    var cssTemplate = Handlebars.registerPartial('externalSheet','<link href="{{css_src}}" rel="stylesheet" type="text/css"/>');
-    var experimentTemplate = Handlebars.compile('<head>{{> externalScript}}{{> externalSheet}}</head> <body><iframe src="/proxy/http://www-edc.eng.cam.ac.uk/~rmcd3/touchProto/"></iframe></body>');
+    var cssTemplate = Handlebars.registerPartial('externalSheet','{{#each sheets}}\n<link href="{{this}}" rel="stylesheet" type="text/css"/>\n{{/each}}');
+    var experimentTemplate = Handlebars.compile(fs.readFileSync('template/experiment_run.html').toString());
 
     var proxyPageTemplate = Handlebars.compile('{{> externalScript}}');
     var proxyPageHeader = proxyPageTemplate({
@@ -104,14 +124,44 @@ parseUri.options = {
             "http://localhost:5000/clientProxy.js"]
     });
 
-    app.get("/experiment/:id", function(req, res){
+    app.get("/experiment/:id/run", function(req, res){
+        var id = req.params["id"];
+
         res.send(experimentTemplate({
-            scripts:["http://code.jquery.com/jquery-1.9.1.min.js","/proxy.js"],
-            css_src:"/experiment.css"
+            scripts:[
+                "http://code.jquery.com/jquery-1.9.1.min.js",
+                "/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
+                "/share/webclient/share.js",
+                "/share/webclient/textarea.js",
+                "/share/webclient/json.js",
+                "/cuid/dist/browser-cuid.js",
+                "/underscore/underscore.js",
+                "/bootstrap/js/bootstrap.min.js",
+                "/proxy.js"
+            ],
+            sheets:[
+                "/bootstrap/css/bootstrap.min.css",
+                "/experiment_run.css"
+            ],
+            iframe_src: ""
         }));
-        //res.send('<iframe src="/proxy/http://www.amazon.com"></iframe>');
     });
 
+
+    var experimentViewerTemplate = Handlebars.compile(fs.readFileSync('template/experiment_view.html').toString());
+    var experimentViewer = experimentViewerTemplate(JSON.parse(fs.readFileSync('template/experiment_view.json').toString()));
+
+    app.get("/experiment/:id", function(req, res){
+        res.send(experimentViewer);
+    });
+
+
+
+
+
+    /*
+    ** PROXY
+     */
 
     app.all("/proxy/*", function(req, clientRes){
 
@@ -218,7 +268,7 @@ parseUri.options = {
         var hostname = parsedUrl.hostname;
         var str = '';
         console.log("\nServer response headers:");
-        console.log(response.headers);
+        //console.log(response.headers);
         console.log("status code:"+response.statusCode);
         console.log("requested url:"+parsedUrl.href);
 
@@ -233,7 +283,13 @@ parseUri.options = {
                 response.headers.location = "/proxy/"+hostname+parsedLocation.path;
             }
         }
-        clientRes.writeHead( response.statusCode, _.omit(response.headers, "set-cookie","p3p","content-length"));
+
+        var newHeader = _.omit(response.headers, "set-cookie","p3p","content-length");
+        newHeader["x-frame-pptions"] = "SAMEORIGIN";//ref: https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
+
+        clientRes.writeHead( response.statusCode, newHeader);
+
+        console.log(newHeader);
 
         var contentType = response.headers["content-type"];
         var isCompressed =  isRequestCompressed(response);

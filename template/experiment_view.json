@@ -1,0 +1,19 @@
+{
+    "scripts":[
+        "http://code.jquery.com/jquery-1.9.1.min.js",
+        "/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
+        "/share/webclient/share.js",
+        "/share/webclient/textarea.js",
+        "/share/webclient/json.js",
+        "/cuid/dist/browser-cuid.js",
+        "/knockout/build/output/knockout-latest.debug.js",
+        "/underscore/underscore.js",
+        "/sigma.min.js",
+        "/bootstrap/js/bootstrap.min.js",
+        "/experiment.js"
+    ],
+    "sheets":[
+        "/bootstrap/css/bootstrap.min.css",
+        "/experiment.css"
+    ]
+}

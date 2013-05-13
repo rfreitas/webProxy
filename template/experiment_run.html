@@ -1,0 +1,50 @@
+<head>
+    {{> externalSheet}}
+    {{> externalScript}}
+</head>
+<body>
+
+<div class="startup ">
+    <div class="container-narrow">
+        <div class="jumbotron">
+            <h1>Welcome!</h1>
+            <hr>
+            <p class="lead">
+                Thank you for being part of this experiment.
+            </p>
+            <p class="lead">
+                Your activity will be monitored as you perform the different tasks.
+            </p>
+            <p class="lead">
+                <strong>Before proceeding let the supervisors know your participant id.</strong>
+            </p>
+            <div class="input-prepend">
+                <span class="add-on">Participant id:</span>
+                <span class="experiment-id input-xlarge uneditable-input"></span>
+            </div>
+            <hr>
+            <a class="btn btn-large btn-primary start-experiment" href="#">Start experiment</a>
+        </div>
+    </div>
+</div>
+
+<div class="task">
+    <h3><span class="title"></span></h3>
+</div>
+<iframe src="{{iframe_src}}"></iframe>
+
+<!-- Modal -->
+<div id="nexttaskmodal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="myModalLabel">Task completed</h3>
+    </div>
+    <div class="modal-body">
+        <p>Thank you for performing the task. When you are ready, feel free to start the next one.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary complete" data-dismiss="modal" aria-hidden="true">Next task</button>
+    </div>
+</div>
+
+</body>
