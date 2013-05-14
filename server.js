@@ -46,13 +46,14 @@ parseUri.options = {
         path = require("path"),
         fs = require("fs"),
         crypto = require("crypto");
+    var url = require("url");
+
     var express = require('express');
     var util = require('util');
     var share = require("share");
     var shareServer = require('share').server;
     var shareClient = shareServer.client;
     //var redis = require("redis");
-    var url = require("url");
     var _ = require("underscore");
     var cheerio = require('cheerio');
     var cleanCSS = require('clean-css');
