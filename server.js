@@ -58,7 +58,7 @@ parseUri.options = {
     var cheerio = require('cheerio');
     var cleanCSS = require('clean-css');
     var cookie = require("./cookie.js");
-    var Handlebars = require("Handlebars");
+    var Handlebars = require("handlebars");
 
     var readFile = function(path){
         return fs.readFileSync(path).toString();
