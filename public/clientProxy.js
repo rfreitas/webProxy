@@ -45,32 +45,41 @@
 
 
     if (iframe && parent && !window.isProxied12321){
-        iframe.contentDocument = document;//normalization: some browsers don't set the contentDocument, only the contentWindow
+        //iframe.contentDocument = document;//normalization: some browsers don't set the contentDocument, only the contentWindow
         window.isProxied12321 = true;
 
         $(parent.document).ready(function(){
             var p$ = parent.jQuery;
-            p$(iframe).trigger("iframeactive");
 
-            p$(function(){
-                p$(iframe).trigger("iframeready");
+            var trigger = function(type){
+                p$(iframe).trigger(type, location.href);
+            };
+
+            trigger("iframeactive");
+
+            $(function(){
+                trigger("iframeready");
             });
-            p$(window).load(function(){
-                p$(iframe).trigger("iframeloaded");
+            $(window).load(function(){
+                trigger("iframeloaded");
             });
 
-            p$(window).unload(function(e){//not possible to prevent default
-                p$(iframe).trigger("iframeunloaded");
+            $(window).unload(function(e){//not possible to prevent default
+                trigger("iframeunloaded");
             });
 
-            p$(window).on("beforeunload",function(){
-                p$(iframe).trigger("iframebeforeunload");
+            $(window).on("beforeunload",function(){
+                trigger("iframebeforeunload");
+            });
+
+            $(window).on('hashchange', function(){
+                trigger("hashchange");
             });
 
             var newOverride = function (eventType){
                 var args = $.makeArray(arguments);
                 var out = this._super.apply(this, args.slice(1));
-                p$(window).trigger(eventType);
+                trigger(eventType);
                 return out;
             };
 
@@ -100,7 +109,9 @@
         return oldHrefOpen.apply(this, args);
     };
 
-    var m = new MutationObserver(function(mutationsArray){
+    var MutationObs = window.MutationObserver || window.WebKitMutationObserver;
+
+    var m = new MutationObs(function(mutationsArray){
         m.disconnect();
 
         mutationsArray.forEach(function(mutation){

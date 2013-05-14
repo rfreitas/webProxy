@@ -59,6 +59,9 @@ parseUri.options = {
     var cookie = require("./cookie.js");
     var Handlebars = require("Handlebars");
 
+    var readFile = function(path){
+        return fs.readFileSync(path).toString();
+    };
 
 
     var certificateOptions = {
@@ -90,6 +93,9 @@ parseUri.options = {
 
     app.use(express.static(__dirname+"/public") );
     app.use(express.static(__dirname+"/node_modules") );
+
+
+    //app.use("/touchProto/",express.static(__dirname+"/../touchProto/") );//ref: http://www.senchalabs.org/connect/http.html
     //app.use(express.bodyParser());
 
     //ref: http://stackoverflow.com/a/13565786/689223
@@ -107,21 +113,29 @@ parseUri.options = {
 
     app.use(app.router);
 
-
+    app.all("*",function(req,res, next){
+        console.log("a request");
+        next();
+    });
 
     /*
     * EXPERIMENTS
      */
 
-    var scriptTemplate = Handlebars.registerPartial('externalScript','{{#each scripts}}\n<script src="{{this}}" type="text/javascript"></script>\n{{/each}}');
-    var cssTemplate = Handlebars.registerPartial('externalSheet','{{#each sheets}}\n<link href="{{this}}" rel="stylesheet" type="text/css"/>\n{{/each}}');
+
+    Handlebars.registerPartial('externalScript','{{#each scripts}}' +
+        '\n{{#if code}}<script type="text/javascript">{{{code}}}</script>' +
+        '{{else}}<script src="{{this}}" type="text/javascript"></script>' +
+        '{{/if}}\n' +
+        '{{/each}}');
+    Handlebars.registerPartial('externalSheet','{{#each sheets}}\n<link href="{{this}}" rel="stylesheet" type="text/css"/>\n{{/each}}');
     var experimentTemplate = Handlebars.compile(fs.readFileSync('template/experiment_run.html').toString());
 
     var proxyPageTemplate = Handlebars.compile('{{> externalScript}}');
     var proxyPageHeader = proxyPageTemplate({
-        scripts:["http://code.jquery.com/jquery-1.9.1.min.js",
-            "http://stevenlevithan.com/demo/parseuri/js/assets/parseuri.js",
-            "http://localhost:5000/clientProxy.js"]
+        scripts:[
+            {code:readFile("public/jquery-1.9.1.min.js")},
+            {code:readFile("public/clientProxy.js")}]
     });
 
     app.get("/experiment/:id/run", function(req, res){
@@ -129,7 +143,7 @@ parseUri.options = {
 
         res.send(experimentTemplate({
             scripts:[
-                "http://code.jquery.com/jquery-1.9.1.min.js",
+                "/jquery-1.9.1.min.js",
                 "/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
                 "/share/webclient/share.js",
                 "/share/webclient/textarea.js",
@@ -148,8 +162,9 @@ parseUri.options = {
     });
 
 
-    var experimentViewerTemplate = Handlebars.compile(fs.readFileSync('template/experiment_view.html').toString());
-    var experimentViewer = experimentViewerTemplate(JSON.parse(fs.readFileSync('template/experiment_view.json').toString()));
+
+    var experimentViewerTemplate = Handlebars.compile(readFile('template/experiment_view.html'));
+    var experimentViewer = experimentViewerTemplate(JSON.parse(readFile('template/experiment_view.json')));
 
     app.get("/experiment/:id", function(req, res){
         res.send(experimentViewer);
@@ -284,8 +299,8 @@ parseUri.options = {
             }
         }
 
-        var newHeader = _.omit(response.headers, "set-cookie","p3p","content-length");
-        newHeader["x-frame-pptions"] = "SAMEORIGIN";//ref: https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
+        var newHeader = _.omit(response.headers, "set-cookie","p3p","content-length","accept-ranges","transfer-encoding","server");
+        newHeader["x-frame-options"] = "SAMEORIGIN";//ref: https://developer.mozilla.org/en-US/docs/HTTP/X-Frame-Options
 
         clientRes.writeHead( response.statusCode, newHeader);
 
@@ -380,18 +395,21 @@ parseUri.options = {
                 $('form[action]').each(function(i ,node){
                     replaceIfRelativeWith( "", "action", node, $);
                 });
-                $('link[href]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "href", node, $, true);
-                });
-                $('script[src]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "src", node, $, true);
-                });
-                $('object[data]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "data", node, $, true);
-                });
                 $('iframe[src]').each(function(i ,node){
                     replaceIfRelativeWith( "", "src", node, $);
                 });
+
+                //content
+                $('link[href]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "href", node, $);
+                });
+                $('script[src]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "src", node, $);
+                });
+                $('object[data]').each(function(i ,node){
+                    replaceIfRelativeWith( "", "data", node, $);
+                });
+
 
                 var fullHtml = $.html();
 

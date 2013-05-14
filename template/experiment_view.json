@@ -1,6 +1,6 @@
 {
     "scripts":[
-        "http://code.jquery.com/jquery-1.9.1.min.js",
+        "jquery-1.9.1.min.js",
         "/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
         "/share/webclient/share.js",
         "/share/webclient/textarea.js",

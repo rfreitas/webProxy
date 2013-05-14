@@ -2,7 +2,7 @@
     "use strict";
 
     var previousHref = "";
-    var callCallbackIfDifferent = function(window, callback, e){
+    var callCallbackIfDifferent = function(window, callback, e, href){
         var currentHref = window.location.href.trim();
         if ( currentHref !== previousHref ){
             callback(currentHref, e);
@@ -32,9 +32,9 @@
         var iframeHandler = function(e){
             callIf(e);
             windowListener.dispose();
-            windowListener = hrefChange( window, callIf );
+            windowListener = hrefChange( iframe, callIf );
         };
-        var events = "iframeready load";
+        var events = "iframeready iframeloaded";
         $(iframe).on(events, iframeHandler);
 
         return {
@@ -70,13 +70,14 @@
 
                 var dummyCheckpoint = {
                     finishCondition: {
-                        href: "http://www-edc.eng.cam.ac.uk/~rmcd3/touchProto/#app:contacts"
+                        href: ".+/#app:contacts"
                     },
                     runs:{}
                 };
 
                 var dummyTask = {
                     startUrl: "http://www-edc.eng.cam.ac.uk/~rmcd3/touchProto/",
+                    //startUrl: "/touchProto/",
                     title: "do this and that",
                     checkpoints: [dummyCheckpoint]
                 };
@@ -86,6 +87,7 @@
                         title: "second task"
                     })],
                     runs:{},
+                    //proxy: "/proxy/",
                     title: "a task"
                 };
 
@@ -120,9 +122,11 @@
                     return currentTaskRun;
                 };
 
+                var proxy = experiment.at(["proxy"]).get() || "";
+
                 var settingUpTask = function(currentTask){
                     $("div .title").text(currentTask.at(["title"]).get());
-                    $(iframe).attr("src", "/proxy/" + currentTask.at(["startUrl"]).get() );
+                    $(iframe).attr("src", proxy + currentTask.at(["startUrl"]).get() );
                 };
 
 
