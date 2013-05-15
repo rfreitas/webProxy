@@ -76,7 +76,7 @@
                 };
 
                 var dummyTask = {
-                    startUrl: "http://www-edc.eng.cam.ac.uk/~rmcd3/touchProto/",
+                    startUrl: "http://stark-wave-8725.herokuapp.com/",
                     //startUrl: "/touchProto/",
                     title: "do this and that",
                     checkpoints: [dummyCheckpoint]
