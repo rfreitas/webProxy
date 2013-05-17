@@ -249,6 +249,7 @@
     var proxyHost = proxyUrlParsed.protocol +"://"+ proxyUrlParsed.authority;
 
     $(function(){
+        /*
         $('a[href]').each(function(i ,node){
             replaceIfRelativeWith( "", "href", node, $);
             $(node).attr("target", "_self");//ref:http://www.w3schools.com/jsref/prop_anchor_target.asp
@@ -274,5 +275,6 @@
         });
         console.log("sup");
         m.observe(document, observerOptions);
+        */
     });
 })(window, jQuery, undefined, document);

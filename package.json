@@ -22,7 +22,9 @@
         "share": "https://github.com/josephg/ShareJS/tarball/master",
         "cuid": "https://github.com/dilvie/cuid/tarball/master",
         "shareko": "https://github.com/rfreitas/ShareKO.js/tarball/master",
-        "syncedclock": "https://github.com/rfreitas/syncedClock/tarball/master"
+        "syncedclock": "https://github.com/rfreitas/syncedClock/tarball/master",
+        "sockjs": "x",
+        "sockjs-client": "x"
     },
     "engines": {
         "node": "0.8.x",

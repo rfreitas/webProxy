@@ -51,9 +51,7 @@ parseUri.options = {
     var express = require('express');
     var util = require('util');
     var share = require("share");
-    var shareServer = require('share').server;
-    var shareClient = shareServer.client;
-    //var redis = require("redis");
+    var redis = require("redis");
     var _ = require("underscore");
     var cheerio = require('cheerio');
     var cleanCSS = require('clean-css');
@@ -79,24 +77,29 @@ parseUri.options = {
 
     var sharejsOptions = {
         db: {
-            type: 'none' //{type: 'redis'}}; // See docs for options. {type: 'redis'} to enable persistance.
+            type: 'none'
+            //type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
         },
         auth: function(agent, action){
             //ref: https://github.com/josephg/ShareJS/wiki/User-access-control
             action.accept();
-        }
+        },
+        //browserChannel: null,
+        sockjs: {},
+        websocket:{}
     };
 
 
     console.log(__dirname);
 
-    shareServer.attach(app, sharejsOptions);
+
+    app.use(express.logger());
 
     app.use(express.static(__dirname+"/public") );
     app.use(express.static(__dirname+"/node_modules") );
 
 
-    //app.use("/touchProto/",express.static(__dirname+"/../touchProto/") );//ref: http://www.senchalabs.org/connect/http.html
+    app.use("/touchproto/",express.static(__dirname+"/../touchProto/") );//ref: http://www.senchalabs.org/connect/http.html
     //app.use(express.bodyParser());
 
     //ref: http://stackoverflow.com/a/13565786/689223
@@ -145,9 +148,12 @@ parseUri.options = {
         res.send(experimentTemplate({
             scripts:[
                 "/jquery-1.9.1.min.js",
-                "/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
+                //"/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
+                //"http://cdn.sockjs.org/sockjs-0.3.min.js"
+                "/sockjs-0.3.min.js",
+                //"/sockjs-0.2.1.js",
                 "/share/webclient/share.js",
-                "/share/webclient/textarea.js",
+                //"/share/webclient/textarea.js",
                 "/share/webclient/json.js",
                 "/cuid/dist/browser-cuid.js",
                 "/underscore/underscore.js",
@@ -173,6 +179,12 @@ parseUri.options = {
 
 
 
+
+
+    var httpServer = share.server.attach(app, sharejsOptions);
+
+
+    httpServer.listen(port);
 
 
     /*
@@ -385,6 +397,8 @@ parseUri.options = {
 
                 var $ = cheerio.load(str);
 
+
+
                 $('a[href]').each(function(i ,node){
                     replaceIfRelativeWith( "", "href", node, $);
                     $(node).attr("target", "_self");//ref:http://www.w3schools.com/jsref/prop_anchor_target.asp
@@ -401,14 +415,15 @@ parseUri.options = {
                 });
 
                 //content
+                var dontProxyContent = true;
                 $('link[href]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "href", node, $);
+                    replaceIfRelativeWith( "", "href", node, $, dontProxyContent);
                 });
                 $('script[src]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "src", node, $);
+                    replaceIfRelativeWith( "", "src", node, $, dontProxyContent);
                 });
                 $('object[data]').each(function(i ,node){
-                    replaceIfRelativeWith( "", "data", node, $);
+                    replaceIfRelativeWith( "", "data", node, $, dontProxyContent);
                 });
 
 
@@ -484,7 +499,7 @@ parseUri.options = {
 
     console.log("port:"+port);
 
-    app.listen(port);
+
 
     process.on('uncaughtException', function (err) {
         console.log('Caught exception: ' + err);

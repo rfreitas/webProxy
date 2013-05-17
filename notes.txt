@@ -107,3 +107,18 @@ bugs:
 2. when parsing with cheerio End of html document is missing
   Fix: remove content length from response header
 3. when parsing with cheerio some websites are broken, eg: imdb movies
+4. iOS6 does not work.
+    the iFrame sometimes works sometimes doesn't.
+    CLEAR PROBLEM: sharejs was halting the server due to the long polling bug
+    Solution: Use websockets, see BUG 5.
+5. WebSocket and SockJS not working
+    Tried: changing to port 80
+        Did nothing.
+        Fix: https://github.com/sockjs/sockjs-node/issues/78
+        Also fixed websockets and Sockjs
+
+Uneded bugs:
+a. Couldn't make node work on port 80
+    Did not work: Stopping Apache
+    Running node as root
+

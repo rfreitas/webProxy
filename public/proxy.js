@@ -52,44 +52,101 @@
     $(function(){
         var iframe = $("iframe")[0];
 
+        /*
         $(iframe).on("iframeready iframeactive iframeloaded iframeunloaded iframebeforeunload", function(e){
             console.log(e.type);
             console.log(e.target);
             console.log("WHHHAT");
             console.log($(this.contentDocument).find("*").length);
         });
+        */
 
-        var runId = cuid();
+        var runId = window.runId = cuid();
 
-        $(".startup .experiment-id").text(runId);
+        $(".experiment-id").text(runId);
 
         var id = location.pathname.match(/\/experiment\/[^\/]+/)[0].replace("/experiment/","");
 
         sharejs.open("experiment."+id, "json", function(error, experiment){
-            if (!experiment.get() || true){
+            if (!experiment.get()){
+                var touchProtoDomain = "/touchproto/index.html";
+                var parameters1 = "?expand=false&peek=0&closelabel=false";
+                var parameters2 = "?expand=true&peek=.5&closelabel=true";
 
-                var dummyCheckpoint = {
-                    finishCondition: {
-                        href: ".+/#app:contacts"
-                    },
-                    runs:{}
+                var dummyExperimentCreator = function(parameters){
+                    return {
+                        tasks: [
+                            {
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Power device on",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+lockScreenApp.*"
+                                    },
+                                    runs:{}
+                                }]
+                            },
+                            {
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Unlock Device",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+app:launcher.*"
+                                    },
+                                    runs:{}
+                                }]
+                            },
+                            {
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Go to contacts",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+app:contacts.*"
+                                    },
+                                    runs:{}
+                                }]
+                            },{
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Call Hugo Freitas",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+screen_call_HugoFreitas.*"
+                                    },
+                                    runs:{}
+                                }]
+                            },{
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Call Pedro Lopes",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+screen_call_PedroLopes.*"
+                                    },
+                                    runs:{}
+                                }]
+                            },
+                            {
+                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: "/touchProto/",
+                                title: "Go to BBC News",
+                                checkpoints: [{
+                                    finishCondition: {
+                                        href: ".+app:news.*"
+                                    },
+                                    runs:{}
+                                }]
+                            }],
+                        runs:{},
+                        //proxy: "/proxy/",
+                        title: "a task"
+                    };
                 };
 
-                var dummyTask = {
-                    startUrl: "http://stark-wave-8725.herokuapp.com/",
-                    //startUrl: "/touchProto/",
-                    title: "do this and that",
-                    checkpoints: [dummyCheckpoint]
-                };
-
-                var dummyExperiment = {
-                    tasks: [dummyTask, _.extend(_.clone(dummyTask), {
-                        title: "second task"
-                    })],
-                    runs:{},
-                    //proxy: "/proxy/",
-                    title: "a task"
-                };
+                var dummyExperiment = dummyExperimentCreator( id == "1"?parameters1:parameters2);
 
                 experiment.set(dummyExperiment);
             }
@@ -106,6 +163,11 @@
             });
 
             var startExperiment = function(runId){
+
+                window.onbeforeunload = function() {
+                    return "Please don't close this window without confirmation of the supervior first";
+                };
+
                 experiment.at(["runs",runId]).set({
                     useragent: "webkit",
                     name:"",
@@ -144,9 +206,17 @@
                 var nextTask = function(){
                     taskIndex++;
                     currentTask = experiment.at(["tasks",taskIndex]);
-                    settingUpTask(currentTask);
-                    checkpointIndex = 0;
-                    setCheckpoint( currentTask.at(["checkpoints",checkpointIndex]) );
+                    console.log("currentTask:");
+                    console.log(currentTask.get());
+                    if (currentTask.get()){
+                        settingUpTask(currentTask);
+                        checkpointIndex = 0;
+                        setCheckpoint( currentTask.at(["checkpoints",checkpointIndex]) );
+                    }
+                    else{
+                        $(iframe).addClass("hidden");
+                        $(".finish").removeClass("hidden");
+                    }
                 };
 
                 nextTask();
