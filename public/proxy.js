@@ -1,6 +1,19 @@
 (function(window,$,document){
     "use strict";
 
+    //disables native scrolling
+    document.ontouchmove = function(e) {e.preventDefault()};
+
+    /*
+     Disables image dragging
+     */
+    //ref: http://stackoverflow.com/a/4211930/689223
+    $(document).on('dragstart',"img", function(event) { event.preventDefault(); });
+
+
+
+
+
     var previousHref = "";
     var callCallbackIfDifferent = function(window, callback, e, href){
         var currentHref = window.location.href.trim();
