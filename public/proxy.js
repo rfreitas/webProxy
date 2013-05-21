@@ -2,7 +2,7 @@
     "use strict";
 
     //disables native scrolling
-    document.ontouchmove = function(e) {e.preventDefault()};
+    //document.ontouchmove = function(e) {e.preventDefault()};
 
     /*
      Disables image dragging
@@ -91,8 +91,7 @@
                         tasks: [
                             {
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
-                                title: "Power device on",
+                                title: "Turn the phone on",
                                 checkpoints: [{
                                     finishCondition: {
                                         href: ".+lockScreenApp.*"
@@ -102,8 +101,7 @@
                             },
                             {
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
-                                title: "Unlock Device",
+                                title: "Unlock screen",
                                 checkpoints: [{
                                     finishCondition: {
                                         href: ".+app:launcher.*"
@@ -113,8 +111,7 @@
                             },
                             {
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
-                                title: "Go to contacts",
+                                title: "Go to the contact list",
                                 checkpoints: [{
                                     finishCondition: {
                                         href: ".+app:contacts.*"
@@ -123,28 +120,25 @@
                                 }]
                             },{
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
-                                title: "Call Hugo Freitas",
+                                title: "Call Andrew Neil",
                                 checkpoints: [{
                                     finishCondition: {
-                                        href: ".+screen_call_HugoFreitas.*"
+                                        href: ".+screen_call_AndrewNeil.*"
                                     },
                                     runs:{}
                                 }]
                             },{
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
-                                title: "Call Pedro Lopes",
+                                title: "Call Tom Fowler",
                                 checkpoints: [{
                                     finishCondition: {
-                                        href: ".+screen_call_PedroLopes.*"
+                                        href: ".+screen_call_TomFowler.*"
                                     },
                                     runs:{}
                                 }]
                             },
                             {
                                 startUrl: touchProtoDomain+parameters,
-                                //startUrl: "/touchProto/",
                                 title: "Go to BBC News",
                                 checkpoints: [{
                                     finishCondition: {

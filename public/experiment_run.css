@@ -14,7 +14,6 @@ iframe{
     border:0;
     min-height: 100%;
     min-width: 100%;
-
 }
 
 body,html{
@@ -22,7 +21,6 @@ body,html{
     height: 100%;
     margin: 0;
     padding: 0;
-    overflow: hidden;
 }
 
 .modal button.close{
@@ -41,6 +39,15 @@ body,html{
     background-color: white;
 }
 
+.task-container{
+    overflow: hidden;
+}
+
+.startup,
+.finish{
+    overflow: scroll;
+}
+
 .hidden{
     visibility: hidden;
     opacity: 0;
@@ -55,6 +62,45 @@ body,html{
 .input-prepend > *{
     font-size: 18px !important;
 }
+
+.modal{
+    width: 90%;
+    margin: auto;
+    left: 0;
+    right: 0;
+}
+
+/*
+Peformance increase
+*/
+/*Disable Bootstrap animation*/
+.modal.fade.in,
+.modal.fade{
+    top:0;
+}
+
+.modal.fade.in{
+    -webkit-transform: translateY(10%);
+}
+
+.modal.fade{
+    position: absolute;
+    -webkit-transform: translateY(-135%);
+
+            transition: all 1s ease-out .2s;
+    -webkit-transition: all 1s ease-out .2s;
+}
+
+.modal*{
+    -webkit-backface-visibility: hidden;/*to reduce flicker in iOS*/
+}
+
+
+.modal-backdrop{
+            transition: opacity 1s ease-out;
+    -webkit-transition: opacity 1s ease-out;
+}
+
 
 /* Custom container */
 .container-narrow {
@@ -80,4 +126,16 @@ body,html{
 .jumbotron .btn {
     font-size: 21px;
     padding: 14px 24px;
+}
+
+
+#nexttaskmodal .modal-body{
+    font-size: 160%;
+    line-height: 32px;
+}
+
+#nexttaskmodal button{
+    width: 100%;
+    font-size: 160%;
+    height: 41px;
 }

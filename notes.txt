@@ -117,6 +117,10 @@ bugs:
         Fix: https://github.com/sockjs/sockjs-node/issues/78
         Also fixed websockets and Sockjs
 
+6. CSS transition not working on iOS but working on chrome
+    FIX: -webkit-transition nees the property to apply the transition or the all inclusive property "all"
+        eg: -webkit-transition: 1s; won't work, "all" is necessary, like this: -webkit-transition: all 1s;
+
 Uneded bugs:
 a. Couldn't make node work on port 80
     Did not work: Stopping Apache
