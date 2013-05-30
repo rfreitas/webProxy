@@ -1,0 +1,322 @@
+{
+    "tasks": [
+        {
+            "startUrl": "/touchproto/index.html?expand=true&peek=.5&closelabel=true",
+            "title": "Turn the phone on",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+lockScreenApp.*"
+                    },
+                    "runs": {
+                        "chh1tahdz00004reprofe0onb": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#",
+                                    "timeStamp": 1369305757792
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#lockScreenApp",
+                                    "timeStamp": 1369305908104
+                                }
+                            ],
+                            "startTime": 1369305756947,
+                            "endTime": 1369305908106
+                        },
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#",
+                                    "timeStamp": 1369307311438
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#lockScreenApp",
+                                    "timeStamp": 1369307515179
+                                }
+                            ],
+                            "startTime": 1369307310645,
+                            "endTime": 1369307515182
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Unlock screen",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+app:launcher.*"
+                    },
+                    "runs": {
+                        "chh1tahdz00004reprofe0onb": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369306013568
+                                }
+                            ],
+                            "startTime": 1369305935960,
+                            "endTime": 1369306013573
+                        },
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369307603373
+                                }
+                            ],
+                            "startTime": 1369307568793,
+                            "endTime": 1369307603374
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Go to the contact list",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+app:contacts.*"
+                    },
+                    "runs": {
+                        "chh1tahdz00004reprofe0onb": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369306125405
+                                }
+                            ],
+                            "startTime": 1369306030939,
+                            "endTime": 1369306125408
+                        },
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:weather",
+                                    "timeStamp": 1369307727472
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:weather:options",
+                                    "timeStamp": 1369307749448
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:weather",
+                                    "timeStamp": 1369307749683
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369307752134
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369307841368
+                                }
+                            ],
+                            "startTime": 1369307656013,
+                            "endTime": 1369307841371
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Call Andrew Neil",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+screen_call_AndrewNeil.*"
+                    },
+                    "runs": {
+                        "chh1tahdz00004reprofe0onb": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:screen_call_AndrewNeil",
+                                    "timeStamp": 1369306484393
+                                }
+                            ],
+                            "startTime": 1369306155827,
+                            "endTime": 1369306484395
+                        },
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:screen_call_AndrewNeil",
+                                    "timeStamp": 1369307888658
+                                }
+                            ],
+                            "startTime": 1369307869860,
+                            "endTime": 1369307888659
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Call Tom Fowler",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+screen_call_TomFowler.*"
+                    },
+                    "runs": {
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369307940516
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:sms",
+                                    "timeStamp": 1369308003498
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369308023788
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369308027048
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369308188413
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369308189553
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:screen_email",
+                                    "timeStamp": 1369308249947
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369308258077
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:screen_call_TomFowler",
+                                    "timeStamp": 1369308353919
+                                }
+                            ],
+                            "startTime": 1369307916743,
+                            "endTime": 1369308353922
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "title": "Go to BBC News",
+            "checkpoints": [
+                {
+                    "finishCondition": {
+                        "href": ".+app:news.*"
+                    },
+                    "runs": {
+                        "chh1tt1vs00004repyxxohf1e": {
+                            "tracks": [
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:screen_call_TomFowler:options",
+                                    "timeStamp": 1369308374834
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:options",
+                                    "timeStamp": 1369308378216
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369308384481
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts:options",
+                                    "timeStamp": 1369308416163
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:contacts",
+                                    "timeStamp": 1369308431668
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369308458400
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:sms",
+                                    "timeStamp": 1369308513582
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:sms:options",
+                                    "timeStamp": 1369308530358
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:sms",
+                                    "timeStamp": 1369308532001
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:launcher",
+                                    "timeStamp": 1369308545685
+                                },
+                                {
+                                    "type": "hrefchange",
+                                    "href": "http://freitasmac.local:5000/touchproto/index.html?expand=true&peek=.5&closelabel=true#app:news",
+                                    "timeStamp": 1369308605343
+                                }
+                            ],
+                            "startTime": 1369308367297,
+                            "endTime": 1369308605347
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "runs": {
+        "chh1tahdz00004reprofe0onb": {
+            "useragent": "webkit",
+            "name": "",
+            "age": "",
+            "gender": ""
+        },
+        "chh1tt1vs00004repyxxohf1e": {
+            "useragent": "webkit",
+            "name": "",
+            "age": "",
+            "gender": ""
+        }
+    },
+    "title": "a task"
+}

@@ -1,11 +1,28 @@
+html,body{
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+body,html{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+
 .task{
-    height: 10%;
+    height: 7%;
     width: 100%;
 }
 
 .iframe{
     width:100%;
-    height: 90%;
+    height: 93%;
     overflow: scroll;
     -webkit-overflow-scrolling: touch;
 }
@@ -16,12 +33,7 @@ iframe{
     min-width: 100%;
 }
 
-body,html{
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-}
+
 
 .modal button.close{
     display: none;
@@ -57,10 +69,12 @@ body,html{
 .experiment-id{
     color: black;
     cursor: text;
+    font-size: 80%;
+    text-align: left;
 }
 
 .input-prepend > *{
-    font-size: 18px !important;
+    font-size: 14px !important;
 }
 
 .modal{
@@ -85,7 +99,7 @@ Peformance increase
 
 .modal.fade{
     position: absolute;
-    -webkit-transform: translateY(-135%);
+    -webkit-transform: translateY(-100%);
 
             transition: all 1s ease-out .2s;
     -webkit-transition: all 1s ease-out .2s;
@@ -134,8 +148,15 @@ Peformance increase
     line-height: 32px;
 }
 
-#nexttaskmodal button{
-    width: 100%;
+#nexttaskmodal button.complete{
     font-size: 160%;
     height: 41px;
+
+    display: block;
+    margin: auto;
+    width: 60%;
+}
+
+.experiment-id{
+
 }

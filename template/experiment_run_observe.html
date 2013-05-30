@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+
+    {{> externalSheet}}
+    {{> serverParameters}}
+    {{> externalScript}}
+</head>
+<body>
+
+<div class="experiment">
+
+    <h1 class="title">Experiment: <span data-bind="text: title"></span></h1>
+
+    <div class="participant" data-bind="with: run">
+        <h3 class="title">Participant</h3>
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="name">Name</label>
+                <div class="controls">
+                    <input type="text" id="name" data-bind='value: name, valueUpdate: "afterkeydown input"'  />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="age">Age</label>
+                <div class="controls">
+                    <input type="number" id="age" data-bind='value: age, valueUpdate: "afterkeydown input"'  />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="gender">Gender</label>
+                <div class="controls" id="gender">
+                    <label class="radio inline"><input type="radio" value="m" data-bind="checked: gender" /> Male</label>
+                    <label class="radio inline"><input type="radio" value="f" data-bind="checked: gender" /> Female</label>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="tasks" data-bind="foreach: tasks">
+        <div class="task">
+            <h3 class="title">
+                <span  data-bind="html: title"></span>
+                <span class="label label-success" data-bind="if: finished">finished</span>
+                <span class="label label-warning" data-bind="if: running">running</span>
+                <span class="label" data-bind="if: waiting">waiting</span>
+            </h3>
+
+            <div class="checkpoint" data-bind="foreach: checkpoints, visible: started">
+                Checkpoint <span data-bind="text: ($index() + 1) "> </span>
+            <span data-bind="with: run">
+                <span class="label label-success" data-bind="if: finished">finished</span>
+                <span class="label label-warning" data-bind="if: running">running</span>
+                <span class="label" data-bind="if: waiting">waiting</span>
+                notes:
+                <textarea class="notes" type="text" data-bind='value: notes, valueUpdate: "afterkeydown input, if: started"'  ></textarea>
+            </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

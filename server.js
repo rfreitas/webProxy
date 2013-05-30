@@ -77,8 +77,8 @@ parseUri.options = {
 
     var sharejsOptions = {
         db: {
-            type: 'none'
-            //type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
+            //type: 'none'
+            type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
         },
         auth: function(agent, action){
             //ref: https://github.com/josephg/ShareJS/wiki/User-access-control
@@ -126,6 +126,10 @@ parseUri.options = {
     * EXPERIMENTS
      */
 
+    var handleTemplate = function(path){
+        return Handlebars.compile(fs.readFileSync(path).toString());
+    };
+
 
     Handlebars.registerPartial('externalScript','{{#each scripts}}' +
         '\n{{#if code}}<script type="text/javascript">{{{code}}}</script>' +
@@ -133,7 +137,9 @@ parseUri.options = {
         '{{/if}}\n' +
         '{{/each}}');
     Handlebars.registerPartial('externalSheet','{{#each sheets}}\n<link href="{{this}}" rel="stylesheet" type="text/css"/>\n{{/each}}');
-    var experimentTemplate = Handlebars.compile(fs.readFileSync('template/experiment_run.html').toString());
+    Handlebars.registerPartial('serverParameters','<script id="params" type="text/json">{{{parameters}}}</script>');
+    var experimentTemplate = handleTemplate('template/experiment_run.html');
+    var runObserveTemplate = handleTemplate('template/experiment_run_observe.html');
 
     var proxyPageTemplate = Handlebars.compile('{{> externalScript}}');
     var proxyPageHeader = proxyPageTemplate({
@@ -165,6 +171,61 @@ parseUri.options = {
                 "/experiment_run.css"
             ],
             iframe_src: ""
+        }));
+    });
+
+    app.get("/experiment/:id/observe", function(req, res){
+        var id = req.params["id"];
+
+
+        res.send(experimentTemplate({
+            parameters: {
+                id: id
+            },
+            scripts:[
+                "/jquery-1.9.1.min.js",
+                "/sockjs-0.3.min.js",
+                "/share/webclient/share.js",
+                "/share/webclient/json.js",
+                "/cuid/dist/browser-cuid.js",
+                "/underscore/underscore.js",
+                "/bootstrap/js/bootstrap.min.js",
+                "/static/knockout-2.2.1.js",
+                "/node_modules/ShareKO.js/share.ko.js",
+                "/experiment_observe.js"
+            ],
+            sheets:[
+                "/bootstrap/css/bootstrap.min.css",
+                "/experiment_run_observe.css"
+            ]
+        }));
+    });
+
+    app.get("/experiment/:id/run/:run_id/observe", function(req, res){
+        var id = req.params.id;
+        var runId = req.params.run_id;
+
+        res.send(runObserveTemplate({
+            parameters: JSON.stringify({
+                id: id,
+                runId: runId
+            }),
+            scripts:[
+                "/jquery-1.9.1.min.js",
+                "/sockjs-0.3.min.js",
+                "/share/webclient/share.js",
+                "/share/webclient/json.js",
+                "/cuid/dist/browser-cuid.js",
+                "/underscore/underscore.js",
+                "/bootstrap/js/bootstrap.min.js",
+                "/static/knockout-2.2.1.js",
+                "/ShareKO.js/share.ko.js",
+                "/experiment_run_observe.js"
+            ],
+            sheets:[
+                "/bootstrap/css/bootstrap.min.css",
+                "/experiment_run_observe.css"
+            ]
         }));
     });
 

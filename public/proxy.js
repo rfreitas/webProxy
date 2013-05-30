@@ -2,7 +2,7 @@
     "use strict";
 
     //disables native scrolling
-    //document.ontouchmove = function(e) {e.preventDefault()};
+    document.ontouchmove = function(e) {e.preventDefault();};
 
     /*
      Disables image dragging
@@ -100,7 +100,7 @@
                                 }]
                             },
                             {
-                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: touchProtoDomain+parameters,
                                 title: "Unlock screen",
                                 checkpoints: [{
                                     finishCondition: {
@@ -110,7 +110,7 @@
                                 }]
                             },
                             {
-                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: touchProtoDomain+parameters,
                                 title: "Go to the contact list",
                                 checkpoints: [{
                                     finishCondition: {
@@ -119,7 +119,7 @@
                                     runs:{}
                                 }]
                             },{
-                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: touchProtoDomain+parameters,
                                 title: "Call Andrew Neil",
                                 checkpoints: [{
                                     finishCondition: {
@@ -128,7 +128,7 @@
                                     runs:{}
                                 }]
                             },{
-                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: touchProtoDomain+parameters,
                                 title: "Call Tom Fowler",
                                 checkpoints: [{
                                     finishCondition: {
@@ -138,7 +138,7 @@
                                 }]
                             },
                             {
-                                startUrl: touchProtoDomain+parameters,
+                                //startUrl: touchProtoDomain+parameters,
                                 title: "Go to BBC News",
                                 checkpoints: [{
                                     finishCondition: {
@@ -153,7 +153,7 @@
                     };
                 };
 
-                var dummyExperiment = dummyExperimentCreator( id == "1"?parameters1:parameters2);
+                var dummyExperiment = dummyExperimentCreator( id == 1 ? parameters1:parameters2);
 
                 experiment.set(dummyExperiment);
             }
@@ -182,12 +182,22 @@
                     gender:""
                 });
 
+                var setUpCheckpointRun = function(experiment){
+                    experiment.get().tasks.forEach(function(task, taskKey){
+                        task.checkpoints.forEach(function(checkpoint, checkpointKey){
+                            experiment.at(["tasks",taskKey, "checkpoints", checkpointKey, "runs",runId]).set({
+                                tracks:[],//why not make a track for every type of tracks? Because then you have to rely on time to get the order of all the tracks and the time might be compromised if the  system's time changes
+                                startTime: null
+                            });
+                        });
+                    });
+                };
+
+                setUpCheckpointRun(experiment);
+
                 var setUpRun = function(checkpoint){
                     var currentTaskRun = checkpoint.at(["runs",runId]);
-                    currentTaskRun.set({
-                        tracks:[],//why not make a track for every type of tracks? Because then you have to rely on time to get the order of all the tracks and the time might be compromised if the  system's time changes
-                        startTime: currentTime()
-                    });
+                    currentTaskRun.at("startTime").set(currentTime());
                     return currentTaskRun;
                 };
 
@@ -195,7 +205,8 @@
 
                 var settingUpTask = function(currentTask){
                     $("div .title").text(currentTask.at(["title"]).get());
-                    $(iframe).attr("src", proxy + currentTask.at(["startUrl"]).get() );
+                    var startUlr = currentTask.at(["startUrl"]).get();
+                    if (startUlr) $(iframe).attr("src", proxy + startUlr  );
                 };
 
 
@@ -242,19 +253,28 @@
                             setCheckpoint( newCheckpoint );
                         }
                         else{
-                            var nextTaskModal = $('#nexttaskmodal');
-                            nextTaskModal.modal({
-                                backdrop: "static",
-                                keyboard: false
-                            });
+                            nextTaskModal.modal('show');
                             nextTaskModal.one("hide",function(){
                                 nextTaskModal.one("hidden",function(){
-                                    nextTask();
+                                    //nextTask();
                                 });
                             });
                         }
                     }
                 };
+
+                var nextTaskModal = $('#nexttaskmodal');
+
+                nextTaskModal.modal({
+                    backdrop: "static",
+                    keyboard: false,
+                    show: false
+                });
+
+                nextTaskModal.find("button").on("click",function(){
+                    nextTaskModal.modal('hide');
+                    nextTask();
+                });
 
                 iframeHrefChange(iframe, function newHref(href){
                         href = href.replace(/.*\/proxy\//,"");//remove proxy domain
