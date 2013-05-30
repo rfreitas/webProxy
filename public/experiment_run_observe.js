@@ -27,22 +27,41 @@ var experimentsFactory = sko.extendProto( sko.factory, {
 var experimentRunFactory = sko.extendProto( sko.factory, {
     setObservables: function(out){
         "use strict";
+        out.finished = ko.observable(null);
+    }
+});
+
+
+var experimentRunView = sko.extendProto( sko.factory, {
+    setObservables: function(out){
+        "use strict";
+        out.experiment = ko.observable({});
+        out.experimentRun = ko.observable({});
+    }
+});
+
+//$root.experiment().tasks()[$index].title"
+
+var experimentCompleteRunFactory = sko.extendProto( sko.factory, {
+    setObservables: function(out){
+        "use strict";
         out.name = ko.observable("");
         out.age = ko.observable("");
         out.gender = ko.observable("");
         out.notes = ko.observable("");
+        out.tasks = ko.observableArray([]);
     }
 });
 
-var taskFactory = sko.extendProto( sko.factory, {
+var taskRunFactory = sko.extendProto( sko.factory, {
     computed: {
         started: function(){
             var first = this.checkpoints()[0];
-            return first && first.run() && !!first.run().startTime();
+            return first && !!first.startTime();
         },
         finished: function(){
             var last = _.last( this.checkpoints() );
-            return last && last.run() && !!last.run().endTime();
+            return last && !!last.endTime();
         },
         running: function(){
             return this.started() && !this.finished();
@@ -55,45 +74,17 @@ var taskFactory = sko.extendProto( sko.factory, {
         out.checkpoints = ko.observableArray([]);
     },
 
-    constructFromPlainAndRunId: function(plain, runId){
+    constructFromPlain: function(plain){
         var out = this.construct();
 
         out.checkpoints( plain.checkpoints.map(function(checkpoint){
             //return checkpoint;
-            return checkpointFactory.constructFromRun(checkpoint, runId);
+            return checkpointRunFactory.constructFromPlain(checkpoint);
         }) );
         return out;
     }
 });
 
-var checkpointFactory = sko.extendProto( sko.factory, {
-    computed: {
-        run: function(){
-            "use strict";
-            var runId = this.runId();
-            return this.runs()[runId];
-        }
-    },
-    setObservables: function(out){
-        "use strict";
-        out.runs = ko.observable({});
-        out.runId = ko.observable(0).local();
-    },
-    constructFromRun: function(plain, runId){
-        "use strict";
-        var out = this.construct();
-
-        var runs = _.clone( plain.runs );
-        _.each(runs, function(run, runId){
-            runs[runId] = checkpointRunFactory.constructFromPlain(run);
-        });
-
-        out.runs(runs);
-        out.runId(runId);
-
-        return out;
-    }
-});
 
 var checkpointRunFactory =  sko.extendProto( sko.factory, {
     computed: {
@@ -123,35 +114,44 @@ $(function($, window,sharejs){
     var parameters = JSON.parse( $("#params").html() );
 
     var runId = parameters.runId;
-    sharejs.open("experiment."+parameters.id, "json", function(error, experiment){
+    var experimentDocRef = "experiment."+parameters.id;
+
+    sharejs.open(experimentDocRef, "json", function(error, experiment){
         window.doc = experiment;
 
-        var experimentKo = window.expko = experimentsFactory.construct();
+        var experimentViewModel = window.expko = experimentRunView.construct();
 
+        var experimentKo = experimentsFactory.construct();
 
-        var sync =sko.sync( experimentKo, experiment, function(plain, key, path){
-            console.log("SOMETHING IS HAPPENING!");
-            console.log(arguments);
+        var expSync =sko.sync( experimentKo, experiment);
 
-            if (path[0] === "tasks" && path.length <= 1){
-                var taskId = path[1] || key;
-                //return plain;
-                return taskFactory.constructFromPlainAndRunId(plain, runId);
-            }
-            else if (path[0] === "runs" && path.length <= 1){
-                return experimentRunFactory.constructFromPlain(plain);
-            }
-            return plain;
-        } );
+        experimentViewModel.experiment(experimentKo);
 
-        sync.synchronize();
+        sharejs.open(experimentDocRef+".run."+runId, "json", function(error, experimentRun){
 
-        experimentKo.runId(runId);
+            var experimentRunKo = experimentCompleteRunFactory.construct();
 
+            var sync =sko.sync( experimentRunKo, experimentRun, function(plain, key, path){
+                console.log("SOMETHING IS HAPPENING!");
+                console.log(arguments);
 
-        ko.applyBindings(experimentKo);
+                if (path[0] === "tasks" && path.length <= 1){
+                    var taskId = path[1] || key;
+                    //return plain;
+                    return taskRunFactory.constructFromPlain(plain);
+                }
+                return plain;
+            } );
+
+            sync.synchronize();
+            expSync.synchronize();
+
+            experimentKo.runId(runId);
+
+            experimentViewModel.experimentRun(experimentRunKo);
+
+            ko.applyBindings(experimentViewModel);
+
+        });
     });
-
-
 }.bind(window,jQuery,window,sharejs));
-

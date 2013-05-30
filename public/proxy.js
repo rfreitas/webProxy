@@ -80,7 +80,9 @@
 
         var id = location.pathname.match(/\/experiment\/[^\/]+/)[0].replace("/experiment/","");
 
-        sharejs.open("experiment."+id, "json", function(error, experiment){
+        var experimentDocRef = "experiment."+id;
+
+        sharejs.open(experimentDocRef, "json", function(error, experiment){
             if (!experiment.get()){
                 var touchProtoDomain = "/touchproto/index.html";
                 var parameters1 = "?expand=false&peek=0&closelabel=false";
@@ -159,6 +161,7 @@
             }
             window.doc = experiment;
 
+
             $(".start-experiment").on("click",function(){
                 $(this).removeClass("btn-primary");
                 $(this).addClass("btn-success");
@@ -175,119 +178,131 @@
                     return "Please don't close this window without confirmation of the supervior first";
                 };
 
-                experiment.at(["runs",runId]).set({
+
+                var experimentPlain = experiment.get();
+
+                var experimentRunPlain = {
                     useragent: "webkit",
                     name:"",
                     age:"",
-                    gender:""
-                });
+                    gender:"",
+                    tasks: experimentPlain.tasks.map(function(task){
+                        return {
+                            checkpoints: task.checkpoints.map(function(checkpoint){
+                                return {
+                                    tracks:[],
+                                    startTime: null,
+                                    endTime: null,
+                                    notes: ""
+                                };
+                            })
+                        };
+                    })
+                };
 
-                var setUpCheckpointRun = function(experiment){
-                    experiment.get().tasks.forEach(function(task, taskKey){
-                        task.checkpoints.forEach(function(checkpoint, checkpointKey){
-                            experiment.at(["tasks",taskKey, "checkpoints", checkpointKey, "runs",runId]).set({
-                                tracks:[],//why not make a track for every type of tracks? Because then you have to rely on time to get the order of all the tracks and the time might be compromised if the  system's time changes
-                                startTime: null
-                            });
-                        });
+
+                sharejs.open(experimentDocRef+".run."+runId, "json", function(error, experimentRun){
+                    window.experimentRunDoc = experimentRun;
+
+                    experimentRun.at().set(experimentRunPlain);
+
+                    experiment.at(["runs",runId]).set({
+                        finished: false
                     });
-                };
 
-                setUpCheckpointRun(experiment);
-
-                var setUpRun = function(checkpoint){
-                    var currentTaskRun = checkpoint.at(["runs",runId]);
-                    currentTaskRun.at("startTime").set(currentTime());
-                    return currentTaskRun;
-                };
-
-                var proxy = experiment.at(["proxy"]).get() || "";
-
-                var settingUpTask = function(currentTask){
-                    $("div .title").text(currentTask.at(["title"]).get());
-                    var startUlr = currentTask.at(["startUrl"]).get();
-                    if (startUlr) $(iframe).attr("src", proxy + startUlr  );
-                };
+                    var proxy = experiment.at(["proxy"]).get() || "";
+                    var settingUpTaskView = function(currentTask){
+                        $("div .title").text(currentTask.at(["title"]).get());
+                        var startUlr = currentTask.at(["startUrl"]).get();
+                        if (startUlr) $(iframe).attr("src", proxy + startUlr  );
+                    };
 
 
-                var currentCheckpoint;
-                var currentRun;
-                var setCheckpoint = function(checkpoint){
-                    currentCheckpoint = checkpoint;
-                    currentRun = setUpRun( currentCheckpoint );
-                };
+                    var setUpCheckpointRun = function(taskRun, checkpointIndex){
+                        var currentCheckpointRun = taskRun.at(["checkpoints", checkpointIndex]);
+                        currentCheckpointRun.at("startTime").set(currentTime());
+                        return currentCheckpointRun;
+                    };
 
 
-                var taskIndex = -1;
-                var currentTask;
-                var checkpointIndex;
-                var nextTask = function(){
-                    taskIndex++;
-                    currentTask = experiment.at(["tasks",taskIndex]);
-                    console.log("currentTask:");
-                    console.log(currentTask.get());
-                    if (currentTask.get()){
-                        settingUpTask(currentTask);
-                        checkpointIndex = 0;
-                        setCheckpoint( currentTask.at(["checkpoints",checkpointIndex]) );
-                    }
-                    else{
-                        $(iframe).addClass("hidden");
-                        $(".finish").removeClass("hidden");
-                    }
-                };
-
-                nextTask();
+                    var currentCheckpoint;
+                    var currentCheckpointRun;
+                    var setCheckpoint = function(){
+                        currentCheckpoint = currentTask.at(["checkpoints",checkpointIndex]);
+                        currentCheckpointRun = setUpCheckpointRun( currentTaskRun, checkpointIndex );
+                    };
 
 
-                var checkCheckpoint = function(href){
-                    var finishCondition = currentCheckpoint.get().finishCondition;
-                    if (!finishCondition) return;
-
-                    var stopHref = new RegExp( finishCondition.href );
-                    if ( (href.match(stopHref) || [])[0] === href){
-                        currentRun.at("endTime").set( currentTime() );
-                        checkpointIndex++;
-                        var newCheckpoint = currentTask.at(["checkpoints",checkpointIndex]);
-                        if (newCheckpoint.get()){
-                            setCheckpoint( newCheckpoint );
+                    var taskIndex = 0;
+                    var currentTask;
+                    var currentTaskRun;
+                    var checkpointIndex;
+                    var nextTask = function(){
+                        currentTask = experiment.at(["tasks",taskIndex]);
+                        currentTaskRun = experimentRun.at(["tasks", taskIndex]);
+                        console.log("currentTask:");
+                        console.log(currentTask.get());
+                        if (currentTask.get()){
+                            settingUpTaskView(currentTask);
+                            checkpointIndex = 0;
+                            setCheckpoint();
                         }
                         else{
-                            nextTaskModal.modal('show');
-                            nextTaskModal.one("hide",function(){
-                                nextTaskModal.one("hidden",function(){
-                                    //nextTask();
-                                });
-                            });
+                            $(iframe).addClass("hidden");
+                            $(".finish").removeClass("hidden");
                         }
-                    }
-                };
 
-                var nextTaskModal = $('#nexttaskmodal');
+                        taskIndex++;
+                    };
 
-                nextTaskModal.modal({
-                    backdrop: "static",
-                    keyboard: false,
-                    show: false
-                });
-
-                nextTaskModal.find("button").on("click",function(){
-                    nextTaskModal.modal('hide');
                     nextTask();
-                });
 
-                iframeHrefChange(iframe, function newHref(href){
-                        href = href.replace(/.*\/proxy\//,"");//remove proxy domain
-                        console.log("href: "+href);
-                        currentRun.at("tracks").push({
-                            type: "hrefchange",
-                            href: href,
-                            timeStamp: currentTime()
-                        });
-                        checkCheckpoint(href);
-                        return newHref;
-                    }
-                );
+
+                    var checkCheckpoint = function(href){
+                        var finishCondition = currentCheckpoint.get().finishCondition;
+                        if (!finishCondition) return;
+
+                        var stopHref = new RegExp( finishCondition.href );
+                        if ( (href.match(stopHref) || [])[0] === href){
+                            currentCheckpointRun.at("endTime").set( currentTime() );
+                            checkpointIndex++;
+                            var newCheckpoint = currentTask.at(["checkpoints",checkpointIndex]);
+                            if (newCheckpoint.get()){
+                                setCheckpoint( newCheckpoint );
+                            }
+                            else{
+                                nextTaskModal.modal('show');
+                            }
+                        }
+                    };
+
+                    var nextTaskModal = $('#nexttaskmodal');
+
+                    nextTaskModal.modal({
+                        backdrop: "static",
+                        keyboard: false,
+                        show: false
+                    });
+
+                    nextTaskModal.find("button").on("click",function(){
+                        nextTaskModal.modal('hide');
+                        nextTask();
+                    });
+
+                    iframeHrefChange(iframe, function newHref(href){
+                            href = href.replace(/.*\/proxy\//,"");//remove proxy domain
+                            console.log("href: "+href);
+                            currentCheckpointRun.at("tracks").push({
+                                type: "hrefchange",
+                                href: href,
+                                timeStamp: currentTime()
+                            });
+                            checkCheckpoint(href);
+                            return newHref;
+                        }
+                    );
+
+                });
             };
         });
     });

@@ -11,9 +11,9 @@
 
 <div class="experiment">
 
-    <h1 class="title">Experiment: <span data-bind="text: title"></span></h1>
+    <h1 class="title">Experiment: <span data-bind="text: experiment().title"></span></h1>
 
-    <div class="participant" data-bind="with: run">
+    <div class="participant" data-bind="with: experimentRun()">
         <h3 class="title">Participant</h3>
         <form class="form-horizontal">
             <div class="control-group">
@@ -40,10 +40,10 @@
         </form>
     </div>
 
-    <div class="tasks" data-bind="foreach: tasks">
+    <div class="tasks" data-bind="foreach: experimentRun().tasks">
         <div class="task">
             <h3 class="title">
-                <span  data-bind="html: title"></span>
+                <span  data-bind="html: $root.experiment().tasks()[ $index() ].title "></span>
                 <span class="label label-success" data-bind="if: finished">finished</span>
                 <span class="label label-warning" data-bind="if: running">running</span>
                 <span class="label" data-bind="if: waiting">waiting</span>
@@ -51,13 +51,11 @@
 
             <div class="checkpoint" data-bind="foreach: checkpoints, visible: started">
                 Checkpoint <span data-bind="text: ($index() + 1) "> </span>
-            <span data-bind="with: run">
                 <span class="label label-success" data-bind="if: finished">finished</span>
                 <span class="label label-warning" data-bind="if: running">running</span>
                 <span class="label" data-bind="if: waiting">waiting</span>
                 notes:
                 <textarea class="notes" type="text" data-bind='value: notes, valueUpdate: "afterkeydown input, if: started"'  ></textarea>
-            </span>
             </div>
         </div>
     </div>
