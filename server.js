@@ -50,8 +50,6 @@ parseUri.options = {
 
     var express = require('express');
     var util = require('util');
-    var share = require("share");
-    var redis = require("redis");
     var _ = require("underscore");
     var cheerio = require('cheerio');
     var cleanCSS = require('clean-css');
@@ -74,20 +72,6 @@ parseUri.options = {
 
 
     var app = express();
-
-    var sharejsOptions = {
-        db: {
-            type: 'none'
-            //type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
-        },
-        auth: function(agent, action){
-            //ref: https://github.com/josephg/ShareJS/wiki/User-access-control
-            action.accept();
-        },
-        //browserChannel: null,
-        sockjs: {},
-        websocket:{}
-    };
 
 
     console.log(__dirname);
@@ -120,11 +104,7 @@ parseUri.options = {
     });
 
 
-
-    var httpServer = share.server.attach(app, sharejsOptions);
-
-
-    httpServer.listen(port);
+    app.listen(port);
 
 
     var handleTemplate = function(path){
