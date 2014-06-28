@@ -109,6 +109,9 @@
         return oldHrefOpen.apply(this, args);
     };
 
+    //ref https://developer.mozilla.org/en-US/docs/Web/API/window.close?redirectlocale=en-US&redirectslug=DOM%2Fwindow.close
+    window.close = function(){};
+
     var MutationObs = window.MutationObserver || window.WebKitMutationObserver;
 
     var m = new MutationObs(function(mutationsArray){

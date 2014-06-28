@@ -21,7 +21,7 @@ function parseUri (str) {
     });
 
     return uri;
-};
+}
 
 parseUri.options = {
     strictMode: false,
@@ -77,8 +77,8 @@ parseUri.options = {
 
     var sharejsOptions = {
         db: {
-            //type: 'none'
-            type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
+            type: 'none'
+            //type: 'redis' // See docs for options. {type: 'redis'} to enable persistance.
         },
         auth: function(agent, action){
             //ref: https://github.com/josephg/ShareJS/wiki/User-access-control
@@ -98,9 +98,6 @@ parseUri.options = {
     app.use(express.static(__dirname+"/public") );
     app.use(express.static(__dirname+"/node_modules") );
 
-
-    app.use("/touchproto/",express.static(__dirname+"/../touchProto/") );//ref: http://www.senchalabs.org/connect/http.html
-    //app.use(express.bodyParser());
 
     //ref: http://stackoverflow.com/a/13565786/689223
     app.use(function(req, res, next) {
@@ -122,9 +119,13 @@ parseUri.options = {
         next();
     });
 
-    /*
-    * EXPERIMENTS
-     */
+
+
+    var httpServer = share.server.attach(app, sharejsOptions);
+
+
+    httpServer.listen(port);
+
 
     var handleTemplate = function(path){
         return Handlebars.compile(fs.readFileSync(path).toString());
@@ -138,8 +139,6 @@ parseUri.options = {
         '{{/each}}');
     Handlebars.registerPartial('externalSheet','{{#each sheets}}\n<link href="{{this}}" rel="stylesheet" type="text/css"/>\n{{/each}}');
     Handlebars.registerPartial('serverParameters','<script id="params" type="text/json">{{{parameters}}}</script>');
-    var experimentTemplate = handleTemplate('template/experiment_run.html');
-    var runObserveTemplate = handleTemplate('template/experiment_run_observe.html');
 
     var proxyPageTemplate = Handlebars.compile('{{> externalScript}}');
     var proxyPageHeader = proxyPageTemplate({
@@ -147,106 +146,6 @@ parseUri.options = {
             {code:readFile("public/jquery-1.9.1.min.js")},
             {code:readFile("public/clientProxy.js")}]
     });
-
-    app.get("/experiment/:id/run", function(req, res){
-        var id = req.params["id"];
-
-        res.send(experimentTemplate({
-            scripts:[
-                "/jquery-1.9.1.min.js",
-                //"/share/node_modules/browserchannel/dist/bcsocket-uncompressed.js",
-                //"http://cdn.sockjs.org/sockjs-0.3.min.js"
-                "/sockjs-0.3.min.js",
-                //"/sockjs-0.2.1.js",
-                "/share/webclient/share.js",
-                //"/share/webclient/textarea.js",
-                "/share/webclient/json.js",
-                "/cuid/dist/browser-cuid.js",
-                "/underscore/underscore.js",
-                "/bootstrap/js/bootstrap.min.js",
-                "/proxy.js"
-            ],
-            sheets:[
-                "/bootstrap/css/bootstrap.min.css",
-                "/experiment_run.css"
-            ],
-            iframe_src: ""
-        }));
-    });
-
-    app.get("/experiment/:id/observe", function(req, res){
-        var id = req.params["id"];
-
-
-        res.send(experimentTemplate({
-            parameters: {
-                id: id
-            },
-            scripts:[
-                "/jquery-1.9.1.min.js",
-                "/sockjs-0.3.min.js",
-                "/share/webclient/share.js",
-                "/share/webclient/json.js",
-                "/cuid/dist/browser-cuid.js",
-                "/underscore/underscore.js",
-                "/bootstrap/js/bootstrap.min.js",
-                "/static/knockout-2.2.1.js",
-                "/node_modules/ShareKO.js/share.ko.js",
-                "/experiment_observe.js"
-            ],
-            sheets:[
-                "/bootstrap/css/bootstrap.min.css",
-                "/experiment_run_observe.css"
-            ]
-        }));
-    });
-
-    app.get("/experiment/:id/run/:run_id/observe", function(req, res){
-        var id = req.params.id;
-        var runId = req.params.run_id;
-
-        res.send(runObserveTemplate({
-            parameters: JSON.stringify({
-                id: id,
-                runId: runId
-            }),
-            scripts:[
-                "/jquery-1.9.1.min.js",
-                "/sockjs-0.3.min.js",
-                "/share/webclient/share.js",
-                "/share/webclient/json.js",
-                "/cuid/dist/browser-cuid.js",
-                "/underscore/underscore.js",
-                "/bootstrap/js/bootstrap.min.js",
-                "/static/knockout-2.2.1.js",
-                "/ShareKO.js/share.ko.js",
-                "/experiment_run_observe.js"
-            ],
-            sheets:[
-                "/bootstrap/css/bootstrap.min.css",
-                "/experiment_run_observe.css"
-            ]
-        }));
-    });
-
-
-
-    var experimentViewerTemplate = Handlebars.compile(readFile('template/experiment_view.html'));
-    var experimentViewer = experimentViewerTemplate(JSON.parse(readFile('template/experiment_view.json')));
-
-    app.get("/experiment/:id", function(req, res){
-        res.send(experimentViewer);
-    });
-
-
-
-
-
-    var httpServer = share.server.attach(app, sharejsOptions);
-
-
-    httpServer.listen(port);
-
 
     /*
     ** PROXY
@@ -552,14 +451,7 @@ parseUri.options = {
     });
 
 
-    app.get('/jsclock', function(req, res){
-        console.log("jsclock");
-        var epoch = Date.now();
-        res.send({ epoch: epoch });
-    });
-
     console.log("port:"+port);
-
 
 
     process.on('uncaughtException', function (err) {
