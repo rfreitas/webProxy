@@ -57,23 +57,24 @@ parseUri.options = {
     var cookie = require("./cookie.js");
     var Handlebars = require("handlebars");
 
-    var readFile = function(path) {
-        return fs.readFileSync(path).toString();
+    var readFileRelative = function(filePath){
+        return path.resolve(__dirname, filePath);
     };
+
+    var readFile = function(filePath) {
+        return readFileRelative(filePath).toString();
+    };
+    
+
+    console.log(__dirname);
 
 
     var certificateOptions = {
-        key: fs.readFileSync('key.pem'),
-        cert: fs.readFileSync('cert.pem')
+        key: readFileRelative('key.pem'),
+        cert: readFileRelative('cert.pem')
     };
 
     console.log(cookie.parseCookieString("session-id-time=2082787201l; path=/; domain=.amazon.com; expires=Tue, 01-Jan-2036 08:00:01 GMT"));
-
-
-    //var app = express();
-
-
-    console.log(__dirname);
 
     var out;
     module.exports = out = function(app) {
