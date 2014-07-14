@@ -17,7 +17,7 @@
         "crypto": "x",
         "cheerio": "x",
         "clean-css": "x",
-        "handlebars": "x",
+        "handlebars": "x"
     },
     "engines": {
         "node": "0.8.x",
